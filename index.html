@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Labuan Legends AR — Discovery Journal</title>
+
+    <script src="/Labuan-Ar/libs/mindar/mindar-image-three.prod.js"></script>
+
+    <script src="/Labuan-Ar/coding/data.js"></script>
+
+    <script src="/Labuan-Ar/coding/main.js" type="module"></script>
+
+    <style>
+      html, body {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: 'Georgia', 'Times New Roman', serif;
+        background-color: transparent;
+      }
+      
+      #ar-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      /* Force any canvas element spawned inside container to fit properly */
+      #ar-container canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* --- HERITAGE HUD OVERLAY --- */
+      #ui-container {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        width: 90%;
+        max-width: 420px;
+      }
+
+      .control-row { 
+        display: flex; 
+        gap: 12px; 
+        width: 100%; 
+        justify-content: center; 
+      }
+
+      /* Premium Vintage Buttons */
+      .btn {
+        background: #fcf8f2;
+        color: #4a3b32;
+        border: 2px solid #c9a054; /* Antique Gold */
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-family: 'Georgia', serif;
+        font-weight: bold;
+        font-size: 13px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 0 8px rgba(201,160,84,0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn:hover { 
+        background: #fff7ee; 
+        border-color: #b0873a;
+        transform: translateY(-1px);
+      }
+      
+      .btn:active { 
+        transform: translateY(1px) scale(0.98); 
+      }
+
+      select.btn { 
+        padding-right: 30px;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M0 3l5 5 5-5z' fill='%234a3b32'/></svg>");
+        background-repeat: no-repeat;
+        background-position: calc(100% - 12px) center;
+      }
+
+      .hint-text {
+        color: #fcf8f2;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+        font-size: 11px;
+        font-style: italic;
+        letter-spacing: 0.05em;
+        text-align: center;
+        font-family: sans-serif;
+      }
+
+      /* --- VINTAGE TRAVELER INFO CARD --- */
+      #info-card {
+        display: none;
+        position: fixed;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 85%;
+        max-width: 360px;
+        background: #fbf7ee;
+        border: 3px double #b0873a;
+        padding: 25px;
+        border-radius: 2px;
+        z-index: 2000;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        color: #2c2520;
+        animation: journalOpen 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+
+      @keyframes journalOpen { 
+        from { opacity: 0; transform: translate(-50%, -40%) scale(0.95); } 
+        to { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
+      }
+
+      #card-title {
+        margin-top: 5px;
+        color: #721c24;
+        font-size: 24px;
+        font-weight: normal;
+        border-bottom: 1px solid #e0d5c1;
+        padding-bottom: 8px;
+        text-align: center;
+        letter-spacing: 0.03em;
+      }
+
+      #card-meta {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 12px;
+        color: #615249;
+        line-height: 1.6;
+        background: rgba(201,160,84,0.08);
+        padding: 10px 14px;
+        border-left: 3px solid #c9a054;
+        margin-bottom: 15px;
+      }
+
+      #card-folklore {
+        line-height: 1.7;
+        color: #3a312a;
+        font-size: 15px;
+        text-align: justify;
+        max-height: 180px;
+        overflow-y: auto;
+        padding-right: 5px;
+      }
+
+      #card-folklore::-webkit-scrollbar { width: 4px; }
+      #card-folklore::-webkit-scrollbar-thumb { background: #c9a054; }
+
+      .close-btn {
+        background: transparent;
+        color: #721c24;
+        border: 1px solid #721c24;
+        padding: 4px 10px;
+        float: right;
+        font-family: sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .close-btn:hover {
+        background: #721c24;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="info-card">
+        <button class="close-btn" id="close-card-btn">✕</button>
+        <h2 id="card-title">Landmark</h2>
+        <div id="card-meta"></div>
+        <p id="card-folklore"></p>
+    </div>
+
+    <div id="ui-container">
+        <div class="control-row">
+            <button class="btn" id="narrator-btn">
+              <span id="narrator-icon" style="color: #721c24;">📜</span> Listen to Lore
+            </button>
+            <select id="lang-select" class="btn">
+                <option value="en">🇬🇧 English</option>
+                <option value="ms">🇲🇾 Melayu</option>
+            </select>
+        </div>
+        <div class="hint-text">
+            Drag cursor to rotate antiquity • Discover historical footprints
+        </div>
+    </div>
+
+    <div id="ar-container"></div>
+
+  </body>
+</html>
