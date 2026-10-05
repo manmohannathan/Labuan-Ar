@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Labuan Legends AR — Discovery Journal</title>
+
+    <script src="./libs/mindar/mindar-image-three.prod.js"></script>
+    <script src="./coding/main.js" type="module"></script>
+
+    <style>
+      :root {
+        /* Default: Vintage Theme Variables */
+        --bg-font: 'Georgia', 'Times New Roman', serif;
+        --btn-bg: #fcf8f2;
+        --btn-color: #4a3b32;
+        --btn-border: 2px solid #c9a054;
+        --btn-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 0 8px rgba(201,160,84,0.2);
+        --btn-hover-bg: #fff7ee;
+        --btn-hover-border: #b0873a;
+        --btn-radius: 4px;
+        --btn-padding: 12px 16px;
+        --btn-font-size: 11px;
+        --btn-letter-spacing: 0.05em;
+        
+        --card-bg: #fbf7ee;
+        --card-border: 3px double #b0873a;
+        --card-backdrop: none;
+        --card-radius: 2px;
+        --card-title-color: #721c24;
+        --card-title-border: 1px solid #e0d5c1;
+        --card-meta-bg: rgba(201,160,84,0.08);
+        --card-meta-color: #615249;
+        --card-meta-border: #c9a054;
+        --card-text-color: #3a312a;
+        --card-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        --card-font: 'Georgia', serif;
+
+        --close-color: #721c24;
+        --close-border: 1px solid #721c24;
+        --close-hover-bg: #721c24;
+        --close-hover-color: #fff;
+
+        --hint-color: #fcf8f2;
+        --hint-font: sans-serif;
+        --hint-shadow: 0 2px 4px rgba(0,0,0,0.9);
+      }
+
+      /* Modern / Gen-Z Glassmorphism Theme Overrides */
+      body.theme-modern {
+        --bg-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --btn-bg: rgba(255, 255, 255, 0.15);
+        --btn-color: #ffffff;
+        --btn-border: 1px solid rgba(255, 255, 255, 0.3);
+        --btn-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        --btn-hover-bg: rgba(255, 255, 255, 0.25);
+        --btn-hover-border: rgba(255, 255, 255, 0.5);
+        --btn-radius: 16px;
+        --btn-padding: 12px 18px;
+        --btn-font-size: 12px;
+        --btn-letter-spacing: 0.02em;
+
+        --card-bg: rgba(20, 20, 35, 0.55);
+        --card-border: 1px solid rgba(255, 255, 255, 0.2);
+        --card-backdrop: blur(16px) saturate(180%);
+        --card-radius: 24px;
+        --card-title-color: #a78bfa;
+        --card-title-border: 1px solid rgba(255, 255, 255, 0.1);
+        --card-meta-bg: rgba(255, 255, 255, 0.06);
+        --card-meta-color: #e2e8f0;
+        --card-meta-border: #818cf8;
+        --card-text-color: #f1f5f9;
+        --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        --card-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+        --close-color: #f43f5e;
+        --close-border: 1px solid #f43f5e;
+        --close-hover-bg: #f43f5e;
+        --close-hover-color: #fff;
+
+        --hint-color: rgba(255, 255, 255, 0.85);
+        --hint-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --hint-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      }
+
+      html, body {
+        position: relative;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: var(--bg-font);
+        background-color: transparent;
+        transition: font-family 0.3s ease;
+      }
+      
+      #ar-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      /* Force any canvas element spawned inside container to fit properly */
+      #ar-container canvas {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 2;
+      }
+
+      /* --- HUD OVERLAY --- */
+      #ui-container {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        width: 95%;
+        max-width: 480px; 
+      }
+
+      .control-row { 
+        display: flex; 
+        gap: 10px; 
+        width: 100%; 
+        justify-content: center; 
+        flex-wrap: wrap;
+      }
+
+      /* Dynamic Theme Buttons */
+      .btn {
+        background: var(--btn-bg);
+        color: var(--btn-color);
+        border: var(--btn-border); 
+        padding: var(--btn-padding);
+        border-radius: var(--btn-radius);
+        font-family: inherit;
+        font-weight: bold;
+        font-size: var(--btn-font-size);
+        letter-spacing: var(--btn-letter-spacing);
+        text-transform: uppercase;
+        box-shadow: var(--btn-shadow);
+        backdrop-filter: var(--card-backdrop);
+        -webkit-backdrop-filter: var(--card-backdrop);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        flex: 1; 
+        min-width: 100px;
+        justify-content: center;
+        white-space: nowrap;
+      }
+
+      .btn:hover { 
+        background: var(--btn-hover-bg); 
+        border-color: var(--btn-hover-border);
+        transform: translateY(-2px);
+      }
+      
+      .btn:active { 
+        transform: translateY(1px) scale(0.98); 
+      }
+
+      select.btn { 
+        padding-right: 28px;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M0 3l5 5 5-5z' fill='%23888888'/></svg>");
+        background-repeat: no-repeat;
+        background-position: calc(100% - 12px) center;
+      }
+
+      select.btn option {
+        background: #222;
+        color: #fff;
+      }
+
+      .hint-text {
+        color: var(--hint-color);
+        text-shadow: var(--hint-shadow);
+        font-size: 11px;
+        font-style: italic;
+        letter-spacing: 0.05em;
+        text-align: center;
+        font-family: var(--hint-font);
+        transition: color 0.3s ease;
+      }
+
+      /* --- INFO CARD --- */
+      #info-card {
+        display: none;
+        position: fixed;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 85%;
+        max-width: 360px;
+        background: var(--card-bg);
+        border: var(--card-border);
+        backdrop-filter: var(--card-backdrop);
+        -webkit-backdrop-filter: var(--card-backdrop);
+        padding: 25px;
+        border-radius: var(--card-radius);
+        z-index: 2000;
+        box-shadow: var(--card-shadow);
+        color: var(--card-text-color);
+        font-family: var(--card-font);
+        animation: journalOpen 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        transition: background 0.3s ease, border 0.3s ease, border-radius 0.3s ease;
+      }
+
+      @keyframes journalOpen { 
+        from { opacity: 0; transform: translate(-50%, -40%) scale(0.95); } 
+        to { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
+      }
+
+      #card-title {
+        margin-top: 5px;
+        color: var(--card-title-color);
+        font-size: 20px;
+        font-weight: normal;
+        border-bottom: var(--card-title-border);
+        padding-bottom: 8px;
+        text-align: center;
+        letter-spacing: 0.03em;
+        line-height: 1.3;
+        transition: color 0.3s ease;
+      }
+
+      #card-meta {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 12px;
+        color: var(--card-meta-color);
+        line-height: 1.6;
+        background: var(--card-meta-bg);
+        padding: 10px 14px;
+        border-left: 3px solid var(--card-meta-border);
+        border-radius: 4px;
+        margin-bottom: 15px;
+        transition: background 0.3s ease, color 0.3s ease;
+      }
+
+      #card-folklore {
+        line-height: 1.7;
+        color: var(--card-text-color);
+        font-size: 14px;
+        text-align: justify;
+        max-height: 180px;
+        overflow-y: auto;
+        padding-right: 5px;
+        transition: color 0.3s ease;
+      }
+
+      #card-folklore::-webkit-scrollbar { width: 4px; }
+      #card-folklore::-webkit-scrollbar-thumb { background: var(--card-meta-border); border-radius: 2px; }
+
+      .close-btn {
+        background: transparent;
+        color: var(--close-color);
+        border: var(--close-border);
+        padding: 4px 10px;
+        border-radius: 4px;
+        float: right;
+        font-family: sans-serif;
+        font-size: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      .close-btn:hover {
+        background: var(--close-hover-bg);
+        color: var(--close-hover-color);
+      }
+    </style>
+  </head>
+  <body>
+
+    <div id="info-card">
+        <button class="close-btn" id="close-card-btn">✕</button>
+        <h2 id="card-title">Campus Information</h2>
+        <div id="card-meta"></div>
+        <p id="card-folklore"></p>
+    </div>
+
+    <div id="ui-container">
+        <div class="control-row">
+            <button class="btn" id="theme-toggle-btn">
+              <span id="theme-icon">✨</span> <span id="theme-text">Modern</span>
+            </button>
+
+            <button class="btn" id="info-btn">
+              <span style="color: #c9a054;">🏛️</span> View Info
+            </button>
+
+            <button class="btn" id="narrator-btn">
+              <span id="narrator-icon" style="color: #721c24;">📜</span> Audio Lore
+            </button>
+
+            <select id="lang-select" class="btn">
+                <option value="en">🇬🇧 English</option>
+                <option value="ms">🇲🇾 Melayu</option>
+            </select>
+        </div>
+        <div class="hint-text">
+            Drag cursor to rotate antiquity • Discover historical footprints
+        </div>
+    </div>
+
+    <div id="ar-container"></div>
+
+    <script>
+      // Seamless Theme Toggle
+      const themeBtn = document.getElementById('theme-toggle-btn');
+      const themeIcon = document.getElementById('theme-icon');
+      const themeText = document.getElementById('theme-text');
+
+      themeBtn.addEventListener('click', () => {
+        document.body.classList.toggle('theme-modern');
+        const isModern = document.body.classList.contains('theme-modern');
+        
+        themeIcon.textContent = isModern ? '📜' : '✨';
+        themeText.textContent = isModern ? 'Vintage' : 'Modern';
+      });
+    </script>
+
+  </body>
+</html>

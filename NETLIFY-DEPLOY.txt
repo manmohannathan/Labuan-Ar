@@ -1,0 +1,19 @@
+LABUAN LEGENDS AR - NETLIFY DEPLOYMENT
+
+IMPORTANT: Upload THIS folder to Netlify, not the parent folder.
+The folder must directly contain index.html.
+
+Expected root:
+index.html
+coding/main.js
+libs/loader.js
+libs/mindar/mindar-image-three.prod.js
+assets/...
+
+The original project had two deployment path problems:
+1. index.html loaded ./main.js even though main.js is in coding/.
+2. coding/main.js used ./libs and ./assets, which resolve inside coding/.
+Those paths have been corrected.
+
+The original loader also referenced libs/three.js-r132, but that folder was not present in the uploaded ZIP.
+The deployment loader was replaced with a small glTF loader that uses the Three.js instance bundled inside MindAR, so no extra three.js-r132 files are required.
