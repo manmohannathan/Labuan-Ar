@@ -24,8 +24,8 @@ let buildingModelMesh = null;
 let automaticPopupTriggered = false; 
 
 // Instantiating standard HTML5 Audio components natively
-const audioEN = new Audio('../assets/audio/englishUmskal.mp3');
-const audioMS = new Audio('../assets/audio/malayUmskal.mp3');
+const audioEN = new Audio('./assets/audio/englishUmskal.mp3');
+const audioMS = new Audio('./assets/audio/malayUmskal.mp3');
 
 // Mouse Drag State Variables for Rotation Engine
 let isDragging = false;
@@ -34,7 +34,7 @@ let previousMousePosition = { x: 0 };
 const initializeMindAR = () => {
   return new window.MINDAR.IMAGE.MindARThree({
     container: document.getElementById('ar-container'),
-    imageTargetSrc: '../assets/targets/testBuilding.mind',
+    imageTargetSrc: './assets/targets/testmarker.mind',
     filterMinCF: 0.001, // Smoothens tracking jitter
     filterBeta: 1000
   });
@@ -50,7 +50,7 @@ const setupLighting = (scene) => {
 };
 
 const loadBuildingModel = async () => {
-  const building = await loadGLTF('../assets/models/menara/menara.gltf');
+  const building = await loadGLTF('./assets/models/menara.gltf');
   
   building.scene.scale.set(0.1, 0.1, 0.1);
   building.scene.position.set(0, 0, 0);
