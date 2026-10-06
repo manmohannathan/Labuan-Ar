@@ -25,7 +25,7 @@ const LOCAL_LABUAN_DATA = {
 };
 
 const TARGET_PATH = "./assets/targets/testmarker.mind";
-const MODEL_PATH = "./assets/models/test.gltf";
+const MODEL_PATH = "./assets/models/menara.gltf";
 const AUDIO_EN_PATH = "./assets/audio/englishUmskal.mp3";
 const AUDIO_MS_PATH = "./assets/audio/malayUmskal.mp3";
 
